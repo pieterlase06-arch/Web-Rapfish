@@ -225,19 +225,28 @@ def analyze():
             mc_matrix.append(row_mc)
 
         # Ringkasan Monte Carlo
-        mc_summary = []
-        mc_dist_map = {}
+        mc_summary, mc_dist_map = [], {}
         for lbl in labels:
             xs, ys = mc_group[lbl]['x'], mc_group[lbl]['y']
             if not xs: continue
             mc_dist_map[lbl] = [round(v, 2) for v in xs]
             mx, my = np.median(xs), np.median(ys)
+            
+            x2_5, x97_5 = np.percentile(xs, 2.5), np.percentile(xs, 97.5)
+            y2_5, y97_5 = np.percentile(ys, 2.5), np.percentile(ys, 97.5)
+            x25, x75 = np.percentile(xs, 25), np.percentile(xs, 75)
+            y25, y75 = np.percentile(ys, 25), np.percentile(ys, 75)
+
             mc_summary.append({
                 "label": lbl, "med_x": round(mx, 3), "med_y": round(my, 3),
-                "x_minus_95": round(mx - np.percentile(xs, 2.5), 3), "x_plus_95": round(np.percentile(xs, 97.5) - mx, 3),
-                "y_minus_95": round(my - np.percentile(ys, 2.5), 3), "y_plus_95": round(np.percentile(ys, 97.5) - my, 3),
-                "x_minus_50": round(mx - np.percentile(xs, 25), 3),  "x_plus_50": round(np.percentile(xs, 75) - mx, 3),
-                "y_minus_50": round(my - np.percentile(ys, 25), 3),  "y_plus_50": round(np.percentile(ys, 75) - my, 3)
+                "x_minus_95": round(mx - x2_5, 3), "x_plus_95": round(x97_5 - mx, 3),
+                "y_minus_95": round(my - y2_5, 3), "y_plus_95": round(y97_5 - my, 3),
+                "x_minus_50": round(mx - x25, 3),  "x_plus_50": round(x75 - mx, 3),
+                "y_minus_50": round(my - y25, 3),  "y_plus_50": round(y75 - my, 3),
+                "x2_5": round(x2_5, 3), "x97_5": round(x97_5, 3),
+                "y2_5": round(y2_5, 3), "y97_5": round(y97_5, 3),
+                "x25": round(x25, 3), "x75": round(x75, 3),
+                "y25": round(y25, 3), "y75": round(y75, 3)
             })
 
         return jsonify({
