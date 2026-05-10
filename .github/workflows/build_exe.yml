@@ -27,7 +27,7 @@ jobs:
         
     - name: Build with PyInstaller
       run: |
-        pyinstaller --noconfirm --onefile --windowed --add-data "templates;templates" --name "RapfishAnalyzer" app.py
+        pyinstaller --noconfirm --onefile --add-data "templates;templates" --name "RapfishAnalyzer" app.py
         
     - name: Create Release
       uses: softprops/action-gh-release@v2
