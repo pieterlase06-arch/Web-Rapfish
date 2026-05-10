@@ -1,6 +1,8 @@
 import os
 import sys
 import subprocess
+import webbrowser
+from threading import Timer
 
 # ==========================================
 # SISTEM AUTO-INSTALLER
@@ -22,7 +24,8 @@ def pastikan_library_lengkap():
             print(f"[*] Menginstal otomatis library: {nama_pip}...")
             subprocess.check_call([sys.executable, '-m', 'pip', 'install', nama_pip])
 
-pastikan_library_lengkap()
+if not getattr(sys, 'frozen', False):
+    pastikan_library_lengkap()
 
 from flask import Flask, request, jsonify, render_template, send_file
 import pandas as pd
@@ -33,7 +36,11 @@ from sklearn.metrics import pairwise_distances
 import io
 import traceback
 
-app = Flask(__name__)
+if getattr(sys, 'frozen', False):
+    template_folder = os.path.join(sys._MEIPASS, 'templates')
+    app = Flask(__name__, template_folder=template_folder)
+else:
+    app = Flask(__name__)
 
 @app.route('/')
 def home():
@@ -446,5 +453,27 @@ def export_excel():
         traceback.print_exc()
         return f"GAGAL MEMBUAT EXCEL: {str(e)}", 500
 
+def open_browser():
+    webbrowser.open_new("http://127.0.0.1:5000")
+
 if __name__ == '__main__':
-    app.run(debug=True)
+    try:
+        # Buka browser otomatis jika berjalan sebagai EXE (Frozen)
+        if getattr(sys, 'frozen', False):
+            Timer(1.5, open_browser).start()
+        
+        # Jalankan server (Debug=False untuk produksi/EXE)
+        app.run(debug=False, port=5000)
+    except Exception as e:
+        # Tampilkan error di GUI jika gagal start (berguna untuk debugging EXE)
+        try:
+            import tkinter as tk
+            from tkinter import messagebox
+            root = tk.Tk()
+            root.withdraw()
+            messagebox.showerror("Rapfish Startup Error", f"Terjadi kesalahan saat menjalankan aplikasi:\n\n{str(e)}")
+        except:
+            # Fallback jika tkinter juga gagal
+            with open("error_log.txt", "w") as f:
+                f.write(str(e))
+                traceback.print_exc(file=f)
