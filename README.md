@@ -27,7 +27,7 @@ To run this project locally, follow these steps:
 
 1. **Clone the repository:**
    ```bash
-   git clone https://github.com/YOUR_USERNAME/Web-Rapfish.git
+   git clone https://github.com/pieterlase06-arch/Web-Rapfish.git
    cd Web-Rapfish
    ```
 
@@ -45,7 +45,7 @@ To run this project locally, follow these steps:
    Open your browser and go to `http://127.0.0.1:5000`
 
 ## 📦 For Windows Users (Portable Version)
-If you are on Windows and don't have Python installed, you can download the standalone `.exe` version from the [Releases](https://github.com/YOUR_USERNAME/Web-Rapfish/releases) page. Just download and run `RapfishAnalyzer.exe`.
+If you are on Windows and don't have Python installed, you can download the standalone `.exe` version from the [Releases](https://github.com/pieterlase06-arch/Web-Rapfish/releases) page. Just download and run `RapfishAnalyzer.exe`.
 
 ## 📊 Methodology
 This tool follows the standard Rapfish methodology:
