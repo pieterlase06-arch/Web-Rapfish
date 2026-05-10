@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RAPFISH - Multi-Dimensional Scaling</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        /* GAYA WINDOWS KLASIK (VBA USERFORM) 100% MIRIP ASLI */
+        body {
+            font-family: Arial, Tahoma, sans-serif;
+            background-color: #4db8ff;
+            margin: 0; padding: 20px;
+        }
+
+        .main-wrapper { max-width: 1000px; margin: 0 auto; }
+
+        .vba-window {
+            background-color: #FFFFE0;
+            background-image: radial-gradient(#aaa 1px, transparent 1px);
+            background-size: 8px 8px;
+            border-top: 2px solid #ffffff; border-left: 2px solid #ffffff;
+            border-right: 2px solid #404040; border-bottom: 2px solid #404040;
+            box-shadow: 2px 2px 5px rgba(0,0,0,0.3);
+            width: 720px; margin: 0 auto 30px auto;
+            color: #008080;
+            font-size: 11px;
+        }
+
+        .vba-titlebar {
+            background: linear-gradient(to right, #000080, #1084d0);
+            color: white; font-weight: bold; font-size: 13px;
+            padding: 3px 6px; display: flex; justify-content: space-between;
+            font-family: 'Trebuchet MS', Arial, sans-serif;
+        }
+
+        .vba-close-btn {
+            background: #d4d0c8; border-top: 1px solid #fff; border-left: 1px solid #fff;
+            border-right: 1px solid #404040; border-bottom: 1px solid #404040;
+            font-weight: bold; font-size: 10px; width: 14px; height: 14px;
+            line-height: 12px; text-align: center; color: black; cursor: default;
+        }
+
+        .vba-content { padding: 10px 15px; display: flex; gap: 15px; }
+        .vba-left { flex: 1; display: flex; flex-direction: column; gap: 8px; }
+        .vba-right { width: 130px; display: flex; flex-direction: column; gap: 10px; align-items: center; }
+
+        fieldset.vba-frame {
+            border: 1px solid #008080;
+            padding: 8px 10px; margin: 0;
+            background: transparent;
+        }
+
+        legend.vba-legend {
+            color: #008080; font-size: 11px;
+            padding: 0 4px; margin-left: 5px; background-color: #FFFFE0;
+        }
+
+        .form-row { display: flex; align-items: center; margin-bottom: 4px; }
+        .form-row label { flex: 1; }
+
+        .vba-input {
+            width: 40px; padding: 1px 2px;
+            font-family: 'Courier New', Courier, monospace; font-size: 12px;
+            border: 2px solid; border-color: #808080 #dfdfdf #dfdfdf #808080;
+            background: #ffffff; text-align: right; margin-left: 5px;
+        }
+
+        .vba-btn {
+            background-color: #d4d0c8;
+            border-top: 2px solid #ffffff; border-left: 2px solid #ffffff;
+            border-right: 2px solid #404040; border-bottom: 2px solid #404040;
+            font-family: Arial, sans-serif; font-size: 11px; padding: 4px 8px;
+            cursor: pointer; text-align: center; color: black;
+        }
+        .vba-btn:active {
+            border-top: 2px solid #404040; border-left: 2px solid #404040;
+            border-right: 2px solid #ffffff; border-bottom: 2px solid #ffffff;
+            padding: 5px 7px 3px 9px;
+        }
+
+        .btn-run { color: #FF0000; font-weight: bold; font-size: 16px; width: 100%; height: 60px; line-height: 1.2; }
+        .btn-lev { color: #FF0000; font-weight: bold; font-size: 11px; width: 100%; padding: 8px 0; }
+
+        .red-text { color: #FF0000; }
+        .blue-text { color: #0000FF; }
+
+        .upload-area { background: white; padding: 15px; border-radius: 5px; margin-bottom: 20px; text-align: center; border: 2px dashed #000080; }
+        .dashboard-area { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); display: none; }
+        .tab { border-bottom: 1px solid #ccc; background-color: #f1f1f1; display: flex; }
+        .tab button { background-color: inherit; border: none; padding: 10px 15px; cursor: pointer; font-size: 14px; }
+        .tab button.active { background-color: #1084d0; color: white; }
+        .tabcontent { padding: 20px; border: 1px solid #ccc; border-top: none; }
+        .chart-wrapper { background: white; padding: 10px; position: relative; }
+        canvas { max-height: 400px; width: 100%; }
+        #loading { display: none; text-align: center; color: #1084d0; font-weight: bold; margin: 10px 0; }
+    </style>
+</head>
+<body>
+
+<div class="main-wrapper">
+    <div class="upload-area">
+        <h3 style="margin-top:0; color:#000080;">1. Pilih File Excel / CSV (.xls, .xlsx)</h3>
+        <input type="file" id="inputFile" accept=".csv, .xls, .xlsx" required>
+    </div>
+
+    <!-- REPLIKA JENDELA ADD-INS VBA RAPFISH ASLI -->
+    <form id="uploadForm">
+        <div class="vba-window">
+            <div class="vba-titlebar">
+                <span>RAPFISH - Multi-Dimensional Scaling</span>
+                <div class="vba-close-btn">X</div>
+            </div>
+            <div class="vba-content">
+                <div class="vba-left">
+                    <div class="red-text" style="font-size:11px; font-weight:bold; margin-bottom:4px;">
+                        Fill in parameters to describe the set of fisheries scores to be analyzed on your spreadsheet. Then click RUN Rapfish button to run the analysis.
+                    </div>
+
+                    <div style="display: flex; gap: 10px;">
+                        <!-- Frame 1: Fisheries -->
+                        <fieldset class="vba-frame" style="flex: 1;">
+                            <legend class="vba-legend">Fisheries</legend>
+                            <div class="form-row"><label>Start row</label> <input type="number" id="start_row" class="vba-input" value="2"></div>
+                            <div class="form-row"><label>End row</label> <input type="number" id="end_row" class="vba-input" value="18"></div>
+                            <div style="height:4px;"></div>
+                            <div class="blue-text">Names of fisheries are in Excel column:</div>
+                            <div class="form-row"><label>Start col</label> <input type="number" id="start_text_col" class="vba-input" value="1"></div>
+                            <div class="form-row"><label>End col</label> <input type="number" id="end_text_col" class="vba-input" value="2"></div>
+                        </fieldset>
+
+                        <!-- Frame 2: Attributes -->
+                        <fieldset class="vba-frame" style="flex: 1;">
+                            <legend class="vba-legend">Attributes</legend>
+                            <div class="form-row"><label>Start score col.</label> <input type="number" id="start_score_col" class="vba-input" value="3"></div>
+                            <div class="form-row"><label>End score col.</label> <input type="number" id="end_score_col" class="vba-input" value="11"></div>
+                        </fieldset>
+                    </div>
+
+                    <!-- Frame 3: Monte Carlo -->
+                    <fieldset class="vba-frame">
+                        <legend class="vba-legend">MONTE CARLO analysis</legend>
+                        <div class="red-text" style="margin-bottom:6px; line-height:1.2;">
+                            Analyze effect of scoring uncertainty on Rapfish ordination. For each repeat, add random error to each nominal score. Choose one of the three error distribution methods provided.
+                        </div>
+                        <div class="form-row blue-text" style="margin-bottom:6px;">
+                            <label style="flex:none; margin-right:10px;">Number of random repeats</label> 
+                            <input type="number" id="mc_iterations" class="vba-input" value="50">
+                        </div>
+                        <div style="font-style:italic; color:#FF0000; margin-bottom:6px;">
+                            NB. Enter values in all boxes even if you are not using them.
+                        </div>
+                        <div style="display:flex; gap:5px; align-items:flex-start;">
+                            <input type="radio" checked style="margin-top:2px;">
+                            <div class="blue-text" style="line-height:1.3;">
+                                Normal 0 mean error distribution with 95% confidence interval = <input type="text" class="vba-input" style="width:30px;" value="25" disabled> % of full attribute range
+                            </div>
+                        </div>
+                    </fieldset>
+                </div>
+
+                <div class="vba-right">
+                    <button type="submit" id="btnOK" class="vba-btn btn-run">RUN<br>Rapfish</button>
+                    
+                    <fieldset class="vba-frame" style="width:100%; box-sizing:border-box; margin-top:20px;">
+                        <legend class="vba-legend">LEVERAGING</legend>
+                        <div class="red-text" style="margin-bottom:5px; text-align:center;">Remove one attribute at a time to see effect on Rapfish ordination.</div>
+                        <button type="button" class="vba-btn btn-lev">Run<br>LEVERAGING</button>
+                    </fieldset>
+
+                    <div style="margin-top:auto; text-align:center;">
+                        <div style="font-size:10px; color:#0000FF; margin-bottom:5px;">Rapfish 1.6 Feb. 2004</div>
+                        <button type="button" class="vba-btn" onclick="document.getElementById('uploadForm').reset()">Cancel</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+
+    <div id="loading">Memproses Analisis MDS & Monte Carlo... Harap Tunggu.</div>
+
+    <!-- AREA HASIL DASHBOARD -->
+    <div class="dashboard-area" id="dashboardArea">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+            <h2 style="color:#000080; margin:0;">Hasil Analisis Rapfish</h2>
+            <button class="vba-btn btn-download" style="width:auto; padding:8px 15px; font-weight:bold; color:green;" onclick="downloadFullExcel()">Download Excel Lengkap</button>
+        </div>
+        <p><strong>Stress Value:</strong> <span id="valStress" style="color:red; font-weight:bold;"></span> | <strong>RSQ Value:</strong> <span id="valRSQ" style="color:blue; font-weight:bold;"></span></p>
+        
+        <div class="tab">
+            <button class="tablinks active" onclick="openTab(event, 'RapAnalysis')">MDS Ordination</button>
+            <button class="tablinks" onclick="openTab(event, 'Leverage')">Leverage Attributes</button>
+            <button class="tablinks" onclick="openTab(event, 'MonteCarlo')">Monte Carlo Analysis</button>
+            <button class="tablinks" onclick="openTab(event, 'KiteDiagram')">Kite Diagram</button>
+        </div>
+
+        <div id="RapAnalysis" class="tabcontent" style="display:block;">
+            <div class="chart-wrapper"><canvas id="chartRap"></canvas></div>
+            <div style="margin-top:20px; max-height: 300px; overflow-y: auto;">
+                <table id="tableScores" style="width:100%; border-collapse:collapse; font-size:11px; background:white;">
+                    <thead>
+                        <tr style="background:#000080; color:white;">
+                            <th style="border:1px solid #ccc; padding:4px;">Fishery</th>
+                            <th style="border:1px solid #ccc; padding:4px;">Sustainability Score (0-100)</th>
+                            <th style="border:1px solid #ccc; padding:4px;">Dimension 2</th>
+                        </tr>
+                    </thead>
+                    <tbody id="bodyScores"></tbody>
+                </table>
+            </div>
+        </div>
+        <div id="Leverage" class="tabcontent">
+            <h3 style="text-align:center; color:#008080;">Leverage of Attributes (Root Mean Square Change in Score)</h3>
+            <div class="chart-wrapper"><canvas id="chartLeverage"></canvas></div>
+        </div>
+        <div id="MonteCarlo" class="tabcontent">
+            <div style="margin-bottom: 20px; background: #f9f9f9; padding: 10px; border: 1px solid #ccc;">
+                <label><strong>Pilih Fishery untuk Histogram:</strong></label>
+                <select id="selFisheryMC" onchange="updateMCHistogram()" class="vba-input" style="width: 200px; text-align: left;"></select>
+            </div>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                <div class="chart-wrapper">
+                    <h3 style="text-align:center;">Monte Carlo Histogram</h3>
+                    <canvas id="chartMCHist"></canvas>
+                </div>
+                <div class="chart-wrapper">
+                    <h3 style="text-align:center;">Raw Scatter Plot</h3>
+                    <canvas id="chartMC"></canvas>
+                </div>
+            </div>
+            <hr>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                <div class="chart-wrapper">
+                    <h3 style="text-align:center;">95% Confidence Interval</h3>
+                    <canvas id="chartMC95"></canvas>
+                </div>
+                <div class="chart-wrapper">
+                    <h3 style="text-align:center;">50% Inter-quartile</h3>
+                    <canvas id="chartMC50"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div id="KiteDiagram" class="tabcontent">
+            <h3 style="text-align:center; color:#008080;">Sustainability Kite Diagram (Multi-Dimensional)</h3>
+            <div style="display: flex; gap: 20px;">
+                <div style="width: 300px; background: #f1f1f1; padding: 15px; border: 1px solid #ccc;">
+                    <h4 style="margin-top: 0;">Input Scores:</h4>
+                    <div class="form-row"><label>Ecological</label> <input type="number" id="kite_eco" class="vba-input" value="50" oninput="drawKite()"></div>
+                    <div class="form-row"><label>Economic</label> <input type="number" id="kite_eco_nom" class="vba-input" value="50" oninput="drawKite()"></div>
+                    <div class="form-row"><label>Social</label> <input type="number" id="kite_soc" class="vba-input" value="50" oninput="drawKite()"></div>
+                    <div class="form-row"><label>Technological</label> <input type="number" id="kite_tech" class="vba-input" value="50" oninput="drawKite()"></div>
+                    <div class="form-row"><label>Institutional</label> <input type="number" id="kite_inst" class="vba-input" value="50" oninput="drawKite()"></div>
+                    <p style="font-size: 10px; color: #666; margin-top: 10px;">*Masukkan hasil score (0-100) dari setiap dimensi yang telah dianalisis untuk melihat bentuk layang-layang (kite).</p>
+                    <button class="vba-btn" style="width:100%; margin-top:10px;" onclick="importKiteScore()">Gunakan Skor Saat Ini (Ecology)</button>
+                </div>
+                <div class="chart-wrapper" style="flex: 1;">
+                    <canvas id="chartKite"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    let chartRapIns, chartLevIns, chartMCIns, chartMC95Ins, chartMC50Ins, chartMCHistIns, chartKiteIns;
+    let currentData = null;
+
+    function openTab(evt, tabName) {
+        let i, tabcontent, tablinks;
+        tabcontent = document.getElementsByClassName("tabcontent");
+        for (i = 0; i < tabcontent.length; i++) tabcontent[i].style.display = "none";
+        tablinks = document.getElementsByClassName("tablinks");
+        for (i = 0; i < tablinks.length; i++) tablinks[i].className = tablinks[i].className.replace(" active", "");
+        document.getElementById(tabName).style.display = "block";
+        evt.currentTarget.className += " active";
+        
+        // Resize charts when tab is shown
+        if (tabName === 'Leverage' && chartLevIns) chartLevIns.resize();
+        if (tabName === 'MonteCarlo') {
+            if (chartMCIns) chartMCIns.resize();
+            if (chartMC95Ins) chartMC95Ins.resize();
+            if (chartMC50Ins) chartMC50Ins.resize();
+            if (chartMCHistIns) chartMCHistIns.resize();
+        }
+        if (tabName === 'KiteDiagram') {
+            drawKite();
+        }
+    }
+    function drawKite() {
+        const scores = [
+            document.getElementById('kite_eco').value,
+            document.getElementById('kite_eco_nom').value,
+            document.getElementById('kite_soc').value,
+            document.getElementById('kite_tech').value,
+            document.getElementById('kite_inst').value
+        ].map(Number);
+
+        if (chartKiteIns) chartKiteIns.destroy();
+        chartKiteIns = new Chart(document.getElementById('chartKite'), {
+            type: 'radar',
+            data: {
+                labels: ['Ecological', 'Economic', 'Social', 'Technological', 'Institutional'],
+                datasets: [{
+                    label: 'Sustainability Status',
+                    data: scores,
+                    backgroundColor: 'rgba(39, 174, 96, 0.4)',
+                    borderColor: 'rgb(39, 174, 96)',
+                    borderWidth: 2,
+                    pointBackgroundColor: 'rgb(39, 174, 96)',
+                    fill: true
+                }]
+            },
+            options: {
+                scales: {
+                    r: {
+                        min: 0,
+                        max: 100,
+                        ticks: { stepSize: 25 },
+                        grid: { color: '#ccc' },
+                        angleLines: { color: '#aaa' }
+                    }
+                }
+            }
+        });
+    }
+
+    function importKiteScore() {
+        if (!currentData || !currentData.rap_analysis.length) return alert('Lakukan analisis MDS terlebih dahulu.');
+        const avg = currentData.rap_analysis.reduce((sum, pt) => sum + pt.x, 0) / currentData.rap_analysis.length;
+        document.getElementById('kite_eco').value = Math.round(avg);
+        drawKite();
+    }
+
+    // Plugin Error Bar
+    const errorBarPlugin = {
+        id: 'errorBars',
+        afterDatasetsDraw: (chart) => {
+            if (!chart.config.options.plugins.errorBars) return;
+            const type = chart.config.options.plugins.errorBars.type; 
+            const {ctx, scales: {x, y}} = chart;
+            
+            chart.data.datasets.forEach((dataset, i) => {
+                if (!dataset.mc_summary) return;
+                const meta = chart.getDatasetMeta(i);
+                
+                meta.data.forEach((point, index) => {
+                    const dataObj = dataset.mc_summary[index];
+                    if(!dataObj) return;
+
+                    ctx.save();
+                    ctx.beginPath();
+                    ctx.strokeStyle = '#000';
+                    ctx.lineWidth = 1;
+
+                    const px = point.x, py = point.y;
+                    const xMin = x.getPixelForValue(type === '95' ? dataObj.x2_5 : dataObj.x25);
+                    const xMax = x.getPixelForValue(type === '95' ? dataObj.x97_5 : dataObj.x75);
+                    ctx.moveTo(xMin, py); ctx.lineTo(xMax, py); 
+                    ctx.moveTo(xMin, py-4); ctx.lineTo(xMin, py+4); 
+                    ctx.moveTo(xMax, py-4); ctx.lineTo(xMax, py+4); 
+
+                    const yMin = y.getPixelForValue(type === '95' ? dataObj.y2_5 : dataObj.y25);
+                    const yMax = y.getPixelForValue(type === '95' ? dataObj.y97_5 : dataObj.y75);
+                    ctx.moveTo(px, yMin); ctx.lineTo(px, yMax); 
+                    ctx.moveTo(px-4, yMin); ctx.lineTo(px+4, yMin); 
+                    ctx.moveTo(px-4, yMax); ctx.lineTo(px+4, yMax); 
+
+                    ctx.stroke();
+                    ctx.restore();
+                });
+            });
+        }
+    };
+    Chart.register(errorBarPlugin);
+
+    document.getElementById('uploadForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        const fileInput = document.getElementById('inputFile');
+        if (!fileInput.files.length) return alert("Pilih file excel terlebih dahulu!");
+
+        const btnOK = document.getElementById('btnOK');
+        const loading = document.getElementById('loading');
+        
+        btnOK.disabled = true;
+        loading.style.display = "block";
+        document.getElementById('dashboardArea').style.display = "none";
+
+        const formData = new FormData();
+        formData.append('file', fileInput.files[0]);
+        formData.append('start_text_col', document.getElementById('start_text_col').value);
+        formData.append('end_text_col', document.getElementById('end_text_col').value);
+        formData.append('start_score_col', document.getElementById('start_score_col').value);
+        formData.append('end_score_col', document.getElementById('end_score_col').value);
+        formData.append('start_row', document.getElementById('start_row').value);
+        formData.append('end_row', document.getElementById('end_row').value);
+        formData.append('mc_iterations', document.getElementById('mc_iterations').value);
+
+        try {
+            const response = await fetch('/analyze', { method: 'POST', body: formData });
+            const result = await response.json();
+            
+            loading.style.display = "none";
+            btnOK.disabled = false;
+            
+            if(result.status === 'success') {
+                currentData = result;
+                document.getElementById('dashboardArea').style.display = "block";
+                document.getElementById('valStress').innerText = result.stress;
+                document.getElementById('valRSQ').innerText = result.rsq;
+                
+                // Populate Fishery selector for MC Histogram
+                const sel = document.getElementById('selFisheryMC');
+                sel.innerHTML = '';
+                Object.keys(result.mc_distributions).forEach(lbl => {
+                    const opt = document.createElement('option');
+                    opt.value = lbl;
+                    opt.innerText = lbl;
+                    sel.appendChild(opt);
+                });
+
+                drawRapAnalysis(result.rap_analysis);
+                
+                // Populate Table
+                const tbody = document.getElementById('bodyScores');
+                tbody.innerHTML = '';
+                result.rap_analysis.forEach(pt => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `<td style="border:1px solid #ccc; padding:4px;">${pt.label}</td>
+                                     <td style="border:1px solid #ccc; padding:4px; text-align:center; font-weight:bold; color:#008000;">${pt.x}</td>
+                                     <td style="border:1px solid #ccc; padding:4px; text-align:center; color:#666;">${pt.y}</td>`;
+                    tbody.appendChild(row);
+                });
+
+                drawLeverage(result.leverage);
+                drawMonteCarloRaw(result.monte_carlo);
+                drawMonteCarloError(result.mc_summary, '95', 'chartMC95', '#1084d0');
+                drawMonteCarloError(result.mc_summary, '50', 'chartMC50', '#27ae60');
+                updateMCHistogram();
+            } else {
+                alert('VBA Error (Python): ' + result.error);
+            }
+        } catch (error) {
+            console.error(error);
+            loading.style.display = "none";
+            btnOK.disabled = false;
+            alert("Koneksi ke mesin Python gagal.");
+        }
+    });
+
+    function drawRapAnalysis(data) {
+        if (chartRapIns) chartRapIns.destroy();
+        chartRapIns = new Chart(document.getElementById('chartRap'), {
+            type: 'scatter',
+            data: { datasets: [{ label: 'Sustainability Score', data: data, backgroundColor: '#000080', pointRadius: 6, pointStyle: 'rectRot' }] },
+            options: { 
+                scales: { 
+                    x: { min: 0, max: 100, title: { display: true, text: 'Sustainability Score' } },
+                    y: { title: { display: true, text: 'Dimension 2' } }
+                } 
+            }
+        });
+    }
+
+    function drawLeverage(data) {
+        if (chartLevIns) chartLevIns.destroy();
+        chartLevIns = new Chart(document.getElementById('chartLeverage'), {
+            type: 'bar',
+            data: { 
+                labels: data.map(d => d.atribut), 
+                datasets: [{ 
+                    label: 'Root Mean Square Change in Score', 
+                    data: data.map(d => d.leverage), 
+                    backgroundColor: '#ff0000',
+                    borderColor: '#000',
+                    borderWidth: 1
+                }] 
+            },
+            options: { 
+                indexAxis: 'y',
+                scales: {
+                    x: { title: { display: true, text: 'RMS Change' } }
+                }
+            }
+        });
+    }
+
+    function drawMonteCarloRaw(mcData) {
+        if (chartMCIns) chartMCIns.destroy();
+        chartMCIns = new Chart(document.getElementById('chartMC'), {
+            type: 'scatter',
+            data: { datasets: [{ label: 'All Iterations', data: mcData, backgroundColor: 'rgba(128,128,128,0.3)', pointRadius: 2 }] },
+            options: { 
+                scales: { 
+                    x: { min: 0, max: 100, title: { display: true, text: 'Sustainability Score' } },
+                    y: { title: { display: true, text: 'Dimension 2' } }
+                } 
+            }
+        });
+    }
+
+    function drawMonteCarloError(mcSummary, type, canvasId, color) {
+        if (type === '95' && chartMC95Ins) chartMC95Ins.destroy();
+        if (type === '50' && chartMC50Ins) chartMC50Ins.destroy();
+        const pointData = mcSummary.map(d => ({x: d.med_x, y: d.med_y}));
+        const chart = new Chart(document.getElementById(canvasId), {
+            type: 'scatter',
+            data: { datasets: [{ label: `Median (${type}% CI)`, data: pointData, backgroundColor: color, pointRadius: 5, mc_summary: mcSummary }] },
+            options: { 
+                scales: { 
+                    x: { min: 0, max: 100, title: { display: true, text: 'Sustainability Score' } },
+                    y: { title: { display: true, text: 'Dimension 2' } }
+                }, 
+                plugins: { errorBars: { type: type } } 
+            },
+            plugins: [errorBarPlugin]
+        });
+        if (type === '95') chartMC95Ins = chart; else chartMC50Ins = chart;
+    }
+
+    function updateMCHistogram() {
+        const lbl = document.getElementById('selFisheryMC').value;
+        if (!lbl || !currentData) return;
+        const dist = currentData.mc_distributions[lbl];
+        
+        // Calculate Histogram bins
+        const bins = Array(21).fill(0); // 0-100 with step 5
+        dist.forEach(val => {
+            const idx = Math.min(Math.floor(val / 5), 20);
+            bins[idx]++;
+        });
+        const labels = Array(21).fill(0).map((_, i) => i * 5);
+
+        if (chartMCHistIns) chartMCHistIns.destroy();
+        chartMCHistIns = new Chart(document.getElementById('chartMCHist'), {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: `Frequency (${lbl})`,
+                    data: bins,
+                    backgroundColor: '#1084d0',
+                    borderColor: '#000',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                scales: {
+                    x: { title: { display: true, text: 'Sustainability Score' } },
+                    y: { title: { display: true, text: 'Frequency' } }
+                }
+            }
+        });
+    }
+
+    async function downloadFullExcel() {
+        if(!currentData) return;
+        const btn = document.querySelector('button.btn-download');
+        btn.innerText = "Mengekspor...";
+        const response = await fetch('/export_excel', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(currentData) });
+        btn.innerText = "Download Excel Lengkap";
+        if (!response.ok) return alert('Gagal mengunduh Excel.');
+        const blob = await response.blob();
+        const a = document.createElement('a');
+        a.href = window.URL.createObjectURL(blob);
+        a.download = "Hasil_Rapfish_Analisis.xlsx";
+        document.body.appendChild(a); a.click(); a.remove();
+    }
+</script>
+</body>
+</html>

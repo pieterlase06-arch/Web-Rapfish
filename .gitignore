@@ -1,0 +1,13 @@
+.venv/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.db
+db.sqlite3
+instance/
+.DS_Store
+*.log
+Hasil_Rapfish_Analisis.xlsx
+*.png
+!portfolio_hero.png
