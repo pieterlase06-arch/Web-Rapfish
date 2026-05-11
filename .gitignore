@@ -1,13 +1,40 @@
-.venv/
+# Ignore Python cache
 __pycache__/
-*.pyc
-*.pyo
-*.pyd
-.db
-db.sqlite3
-instance/
+*.py[cod]
+*$py.class
+*.so
+
+# Virtual environments
+venv/
+env/
+ENV/
+.venv
+
+# PyInstaller build files
+build/
+dist/
+*.spec.bak
+*.manifest
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
 .DS_Store
+Thumbs.db
+desktop.ini
+
+# Logs
 *.log
-Hasil_Rapfish_Analisis.xlsx
-*.png
-!portfolio_hero.png
+
+# Temporary files
+*.tmp
+*.temp
+
+# Excel temporary files
+~$*.xlsx
+~$*.xls
