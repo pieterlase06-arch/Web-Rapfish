@@ -1,0 +1,58 @@
+/* Google Fonts - Inter & Outfit (Offline Version) */
+/* Fallback ke system fonts untuk penggunaan offline */
+
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 400;
+  src: local('Inter'), local('Arial'), local('Helvetica');
+}
+
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 500;
+  src: local('Inter Medium'), local('Arial'), local('Helvetica');
+}
+
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 600;
+  src: local('Inter SemiBold'), local('Arial'), local('Helvetica');
+}
+
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 700;
+  src: local('Inter Bold'), local('Arial Bold'), local('Helvetica Bold');
+}
+
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 800;
+  src: local('Inter ExtraBold'), local('Arial Black'), local('Helvetica Bold');
+}
+
+@font-face {
+  font-family: 'Outfit';
+  font-style: normal;
+  font-weight: 400;
+  src: local('Outfit'), local('Arial'), local('Helvetica');
+}
+
+@font-face {
+  font-family: 'Outfit';
+  font-style: normal;
+  font-weight: 600;
+  src: local('Outfit SemiBold'), local('Arial'), local('Helvetica');
+}
+
+@font-face {
+  font-family: 'Outfit';
+  font-style: normal;
+  font-weight: 800;
+  src: local('Outfit ExtraBold'), local('Arial Black'), local('Helvetica Bold');
+}

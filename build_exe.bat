@@ -1,49 +1,47 @@
 @echo off
-REM ========================================
-REM Web-Rapfish Windows Executable Builder
-REM ========================================
+setlocal
+title Web-Rapfish Build Tool
 
-echo.
-echo ========================================
-echo   RAPFISH MDS - Windows Build Script
-echo ========================================
+echo =======================================================
+echo   WEB-RAPFISH DESKTOP BUILDER (Senior Architect Ver)
+echo =======================================================
 echo.
 
-REM Check if Python is installed
+:: 1. Pembersihan Folder
+echo [*] Cleaning old builds...
+if exist build rmdir /s /q build
+if exist dist rmdir /s /q dist
+echo [✓] Clean completed.
+echo.
+
+:: 2. Cek Python & Dependencies
+echo [*] Checking Environment...
 python --version >nul 2>&1
-if errorlevel 1 (
-    echo [ERROR] Python is not installed or not in PATH!
-    echo Please install Python 3.8+ from https://www.python.org/
+if %errorlevel% neq 0 (
+    echo [!] Python not found. Please install Python.
     pause
     exit /b 1
 )
 
-echo [1/4] Installing PyInstaller...
-python -m pip install pyinstaller --quiet
-
-echo [2/4] Installing project dependencies...
-python -m pip install -r requirements.txt --quiet
-
-echo [3/4] Building Windows executable...
-echo This may take 3-5 minutes. Please wait...
+:: 3. Jalankan PyInstaller
+echo [*] Starting PyInstaller Build...
+echo     This may take several minutes (Compiling MDS & Data Engines)
+echo.
 python -m PyInstaller build_windows.spec --clean --noconfirm
 
-if errorlevel 1 (
+if %errorlevel% neq 0 (
     echo.
-    echo [ERROR] Build failed! Check the error messages above.
+    echo [!] BUILD FAILED!
+    echo     Please check the error logs above.
     pause
     exit /b 1
 )
 
 echo.
-echo [4/4] Build completed successfully!
-echo.
-echo ========================================
-echo   Executable Location:
-echo   dist\Rapfish_MDS_Analysis.exe
-echo ========================================
-echo.
-echo You can now distribute this .exe file to users.
-echo No Python installation required on target machines!
+echo =======================================================
+echo   BUILD SUCCESSFUL!
+echo =======================================================
+echo   Executable is located in: dist/Web-Rapfish.exe
+echo =======================================================
 echo.
 pause

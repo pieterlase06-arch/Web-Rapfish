@@ -7,13 +7,20 @@ import traceback
 from threading import Timer
 
 # ==========================================
-# 1. AUTO-INSTALLER & ENVIRONMENT SETUP
+# 1. PYINSTALLER RESOURCE PATH HELPER
+# ==========================================
+def resource_path(relative_path):
+    """Mendapatkan path absolut ke resource, bekerja untuk dev dan PyInstaller."""
+    if hasattr(sys, '_MEIPASS'):
+        return os.path.join(sys._MEIPASS, relative_path)
+    return os.path.join(os.path.abspath("."), relative_path)
+
+# ==========================================
+# 2. AUTO-INSTALLER & ENVIRONMENT SETUP
 # ==========================================
 # Mencegah error linter untuk variabel khusus PyInstaller
 if not hasattr(sys, 'frozen'):
     sys.frozen = False
-if not hasattr(sys, '_MEIPASS'):
-    sys._MEIPASS = os.path.dirname(os.path.abspath(__file__))
 
 def ensure_dependencies():
     """Memastikan semua library terinstal sebelum aplikasi berjalan."""
@@ -33,7 +40,8 @@ def ensure_dependencies():
             print(f"[*] Missing {pip_name}. Installing...")
             subprocess.check_call([sys.executable, '-m', 'pip', 'install', pip_name])
 
-if not sys.frozen:
+# Jalankan pemeriksaan dependensi hanya saat dalam mode development
+if not getattr(sys, 'frozen', False):
     ensure_dependencies()
 
 # Import utama setelah dipastikan library ada
@@ -45,10 +53,14 @@ from sklearn.preprocessing import MinMaxScaler
 from sklearn.metrics import pairwise_distances
 
 # ==========================================
-# 2. APP INITIALIZATION
+# 3. APP INITIALIZATION WITH RESOURCE PATHS
 # ==========================================
-template_dir = os.path.join(sys._MEIPASS, 'templates') if sys.frozen else 'templates'
-app = Flask(__name__, template_folder=template_dir)
+template_dir = resource_path('templates')
+static_dir = resource_path('static')
+
+app = Flask(__name__, 
+            template_folder=template_dir,
+            static_folder=static_dir)
 
 # ==========================================
 # 3. CORE LOGIC (MDS & PROCRUSTES)
@@ -263,11 +275,68 @@ def export():
         return "Error", 500
 
 # ==========================================
-# 5. RUNNER
+# 5. DESKTOP WINDOW LAUNCHER
+# ==========================================
+def open_browser(url):
+    """Membuka browser setelah delay singkat."""
+    try:
+        webbrowser.open(url)
+    except Exception as e:
+        print(f"[!] Could not open browser automatically: {e}")
+        print(f"[*] Please open your browser manually and go to: {url}")
+
+def find_free_port(start_port=5000, max_attempts=10):
+    """Mencari port yang tersedia jika port default sedang digunakan."""
+    import socket
+    for port in range(start_port, start_port + max_attempts):
+        try:
+            with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+                s.bind(('127.0.0.1', port))
+                return port
+        except OSError:
+            continue
+    return None
+
+def start_desktop_app():
+    """Memulai aplikasi dalam mode desktop native menggunakan PyWebView."""
+    port = find_free_port(5000, 10)
+    if not port:
+        port = 5000 # Fallback
+    
+    url = f"http://127.0.0.1:{port}"
+    
+    try:
+        import webview
+        from threading import Thread
+        
+        # Jalankan Flask Server di background thread
+        server_thread = Thread(target=lambda: app.run(host='127.0.0.1', port=port, debug=False, use_reloader=False, threaded=True))
+        server_thread.daemon = True
+        server_thread.start()
+        
+        # Tunggu server inisialisasi sebentar
+        import time
+        time.sleep(1.5)
+        
+        # Buat Jendela Desktop Native
+        webview.create_window(
+            'Web-Rapfish Desktop Analysis',
+            url,
+            width=1280,
+            height=850,
+            resizable=True,
+            background_color='#1a1a2e'
+        )
+        webview.start()
+        
+    except ImportError:
+        # Fallback ke browser jika pywebview tidak ada
+        print(f"[*] PyWebView tidak ditemukan. Membuka di browser: {url}")
+        Timer(1.5, lambda: webbrowser.open(url)).start()
+        app.run(host='127.0.0.1', port=port, debug=False, use_reloader=False)
+
+# ==========================================
+# 6. MAIN ENTRY POINT
 # ==========================================
 if __name__ == '__main__':
-    url = "http://127.0.0.1:5000"
-    print(f"\n[*] Web-Rapfish is running at {url}")
-    print("[*] Opening browser automatically...\n")
-    Timer(1.5, lambda: webbrowser.open(url)).start()
-    app.run(host='127.0.0.1', port=5000, debug=False)
+    start_desktop_app()

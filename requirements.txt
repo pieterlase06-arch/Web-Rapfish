@@ -6,3 +6,5 @@ openpyxl==3.1.2
 xlrd==2.0.1
 xlsxwriter==3.1.9
 Werkzeug==3.0.1
+pywebview==5.0.5
+pyinstaller==6.3.0
