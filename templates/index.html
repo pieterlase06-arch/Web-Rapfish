@@ -4,258 +4,289 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>RAPFISH - Multi-Dimensional Scaling</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Outfit:wght@400;600;800&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <style>
-        /* GAYA WINDOWS KLASIK (VBA USERFORM) 100% MIRIP ASLI */
-        body {
-            font-family: Arial, Tahoma, sans-serif;
-            background-color: #4db8ff;
-            margin: 0; padding: 20px;
-        }
-
-        .main-wrapper { max-width: 1000px; margin: 0 auto; }
-
-        .vba-window {
-            background-color: #FFFFE0;
-            background-image: radial-gradient(#aaa 1px, transparent 1px);
-            background-size: 8px 8px;
-            border-top: 2px solid #ffffff; border-left: 2px solid #ffffff;
-            border-right: 2px solid #404040; border-bottom: 2px solid #404040;
-            box-shadow: 2px 2px 5px rgba(0,0,0,0.3);
-            width: 720px; margin: 0 auto 30px auto;
-            color: #008080;
-            font-size: 11px;
-        }
-
-        .vba-titlebar {
-            background: linear-gradient(to right, #000080, #1084d0);
-            color: white; font-weight: bold; font-size: 13px;
-            padding: 3px 6px; display: flex; justify-content: space-between;
-            font-family: 'Trebuchet MS', Arial, sans-serif;
-        }
-
-        .vba-close-btn {
-            background: #d4d0c8; border-top: 1px solid #fff; border-left: 1px solid #fff;
-            border-right: 1px solid #404040; border-bottom: 1px solid #404040;
-            font-weight: bold; font-size: 10px; width: 14px; height: 14px;
-            line-height: 12px; text-align: center; color: black; cursor: default;
-        }
-
-        .vba-content { padding: 10px 15px; display: flex; gap: 15px; }
-        .vba-left { flex: 1; display: flex; flex-direction: column; gap: 8px; }
-        .vba-right { width: 130px; display: flex; flex-direction: column; gap: 10px; align-items: center; }
-
-        fieldset.vba-frame {
-            border: 1px solid #008080;
-            padding: 8px 10px; margin: 0;
-            background: transparent;
-        }
-
-        legend.vba-legend {
-            color: #008080; font-size: 11px;
-            padding: 0 4px; margin-left: 5px; background-color: #FFFFE0;
-        }
-
-        .form-row { display: flex; align-items: center; margin-bottom: 4px; }
-        .form-row label { flex: 1; }
-
-        .vba-input {
-            width: 40px; padding: 1px 2px;
-            font-family: 'Courier New', Courier, monospace; font-size: 12px;
-            border: 2px solid; border-color: #808080 #dfdfdf #dfdfdf #808080;
-            background: #ffffff; text-align: right; margin-left: 5px;
-        }
-
-        .vba-btn {
-            background-color: #d4d0c8;
-            border-top: 2px solid #ffffff; border-left: 2px solid #ffffff;
-            border-right: 2px solid #404040; border-bottom: 2px solid #404040;
-            font-family: Arial, sans-serif; font-size: 11px; padding: 4px 8px;
-            cursor: pointer; text-align: center; color: black;
-        }
-        .vba-btn:active {
-            border-top: 2px solid #404040; border-left: 2px solid #404040;
-            border-right: 2px solid #ffffff; border-bottom: 2px solid #ffffff;
-            padding: 5px 7px 3px 9px;
-        }
-
-        .btn-run { color: #FF0000; font-weight: bold; font-size: 16px; width: 100%; height: 60px; line-height: 1.2; }
-        .btn-lev { color: #FF0000; font-weight: bold; font-size: 11px; width: 100%; padding: 8px 0; }
-
-        .red-text { color: #FF0000; }
-        .blue-text { color: #0000FF; }
-
-        .upload-area { background: white; padding: 15px; border-radius: 5px; margin-bottom: 20px; text-align: center; border: 2px dashed #000080; }
-        .dashboard-area { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); display: none; }
-        .tab { border-bottom: 1px solid #ccc; background-color: #f1f1f1; display: flex; }
-        .tab button { background-color: inherit; border: none; padding: 10px 15px; cursor: pointer; font-size: 14px; }
-        .tab button.active { background-color: #1084d0; color: white; }
-        .tabcontent { padding: 20px; border: 1px solid #ccc; border-top: none; }
-        .chart-wrapper { background: white; padding: 10px; position: relative; }
-        canvas { max-height: 400px; width: 100%; }
-        #loading { display: none; text-align: center; color: #1084d0; font-weight: bold; margin: 10px 0; }
-    </style>
+    
+    <!-- Custom Modern CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 <body>
 
-<div class="main-wrapper">
-    <div class="upload-area">
-        <h3 style="margin-top:0; color:#000080;">1. Pilih File Excel / CSV (.xls, .xlsx)</h3>
-        <input type="file" id="inputFile" accept=".csv, .xls, .xlsx" required>
+<div class="container">
+    <header style="position: relative;">
+        <div class="header-actions" style="position: absolute; right: 0; top: 0; display: flex; gap: 10px;">
+            <button id="help-btn" class="btn" style="background: var(--surface); border: 1px solid var(--border); padding: 8px 12px; border-radius: 50%; width: 45px; height: 45px; display: flex; align-items: center; justify-content: center; color: var(--text);" title="Tutorial/Help">
+                <i class="fas fa-question"></i>
+            </button>
+            <button id="theme-btn" class="btn" style="background: var(--surface); border: 1px solid var(--border); padding: 8px 12px; border-radius: 50%; width: 45px; height: 45px; display: flex; align-items: center; justify-content: center; color: var(--text);" title="Toggle Dark Mode">
+                <i class="fas fa-moon"></i>
+            </button>
+        </div>
+        <h1>RAPFISH MDS</h1>
+        <p>Multi-Dimensional Scaling for Fisheries Sustainability Analysis</p>
+    </header>
+
+    <!-- Help Modal -->
+    <div id="helpModal" class="card" style="display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 1000; width: 90%; max-width: 600px; max-height: 80vh; overflow-y: auto; box-shadow: 0 0 0 1000px rgba(0,0,0,0.5);">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+            <h2 style="color: var(--primary); margin: 0;"><i class="fas fa-info-circle" style="margin-right: 10px;"></i>Cara Penggunaan</h2>
+            <button class="btn" onclick="document.getElementById('helpModal').style.display='none'">&times;</button>
+        </div>
+        <div style="font-size: 0.95rem; line-height: 1.7;">
+            <p><strong>1. Unggah File:</strong> Pilih file Excel (.xlsx/.xls) atau CSV yang berisi data skor perikanan Anda.</p>
+            <p><strong>2. Konfigurasi Baris:</strong> Tentukan di baris mana data dimulai dan berakhir (biasanya melewati baris header).</p>
+            <p><strong>3. Konfigurasi Kolom:</strong> 
+                <ul style="margin-left: 20px;">
+                    <li><em>Fisheries Names:</em> Kolom yang berisi nama perikanan/sampel.</li>
+                    <li><em>Attributes:</em> Kolom yang berisi skor penilaian atribut.</li>
+                </ul>
+            </p>
+            <p><strong>4. Preview Data:</strong> Gunakan tombol <span style="color: var(--secondary); font-weight: bold;">Preview Data</span> untuk memastikan rentang yang Anda pilih sudah benar.</p>
+            <p><strong>5. Jalankan Analisis:</strong> Klik <span style="color: var(--primary); font-weight: bold;">Run Rapfish Analysis</span> untuk memproses MDS dan simulasi Monte Carlo.</p>
+            <p><strong>6. Unduh Hasil:</strong> Klik <span style="color: var(--success); font-weight: bold;">Export Excel</span> untuk mendapatkan laporan lengkap dalam format spreadsheet.</p>
+        </div>
     </div>
 
-    <!-- REPLIKA JENDELA ADD-INS VBA RAPFISH ASLI -->
-    <form id="uploadForm">
-        <div class="vba-window">
-            <div class="vba-titlebar">
-                <span>RAPFISH - Multi-Dimensional Scaling</span>
-                <div class="vba-close-btn">X</div>
-            </div>
-            <div class="vba-content">
-                <div class="vba-left">
-                    <div class="red-text" style="font-size:11px; font-weight:bold; margin-bottom:4px;">
-                        Fill in parameters to describe the set of fisheries scores to be analyzed on your spreadsheet. Then click RUN Rapfish button to run the analysis.
-                    </div>
+    <div class="card">
+        <div class="upload-zone" onclick="document.getElementById('inputFile').click()">
+            <i class="fas fa-cloud-upload-alt"></i>
+            <h3>Upload Data Source</h3>
+            <p>Select Excel or CSV file (.xls, .xlsx, .csv)</p>
+            <input type="file" id="inputFile" accept=".csv, .xls, .xlsx" style="display: none;" onchange="updateFileName(this)">
+            <div id="file-name-display" style="margin-top: 10px; font-weight: 600; color: var(--primary);"></div>
+        </div>
+    </div>
 
+    <!-- Analysis Parameters Form -->
+    <form id="uploadForm" class="card" style="margin-bottom: 40px;">
+        <div class="card-header" style="margin-bottom: 25px;">
+            <h2 style="color: var(--primary); font-family: 'Outfit', sans-serif; font-weight: 700;">
+                <i class="fas fa-sliders-h" style="margin-right: 10px;"></i>Analysis Parameters
+            </h2>
+            <p style="color: var(--text-muted); font-size: 0.9rem;">Configure the data ranges and simulation settings for your Rapfish analysis.</p>
+        </div>
+
+        <div class="params-grid">
+            <!-- Section 1: Fisheries -->
+            <div class="form-section">
+                <h4 style="margin-bottom: 15px; color: var(--secondary); border-bottom: 2px solid var(--border); padding-bottom: 5px;">
+                    <i class="fas fa-ship" style="margin-right: 8px;"></i>Fisheries
+                </h4>
+                <div class="form-group">
+                    <label>Row Range (Start - End)</label>
                     <div style="display: flex; gap: 10px;">
-                        <!-- Frame 1: Fisheries -->
-                        <fieldset class="vba-frame" style="flex: 1;">
-                            <legend class="vba-legend">Fisheries</legend>
-                            <div class="form-row"><label>Start row</label> <input type="number" id="start_row" class="vba-input" value="2"></div>
-                            <div class="form-row"><label>End row</label> <input type="number" id="end_row" class="vba-input" value="18"></div>
-                            <div style="height:4px;"></div>
-                            <div class="blue-text">Names of fisheries are in Excel column:</div>
-                            <div class="form-row"><label>Start col</label> <input type="number" id="start_text_col" class="vba-input" value="1"></div>
-                            <div class="form-row"><label>End col</label> <input type="number" id="end_text_col" class="vba-input" value="2"></div>
-                        </fieldset>
-
-                        <!-- Frame 2: Attributes -->
-                        <fieldset class="vba-frame" style="flex: 1;">
-                            <legend class="vba-legend">Attributes</legend>
-                            <div class="form-row"><label>Start score col.</label> <input type="number" id="start_score_col" class="vba-input" value="3"></div>
-                            <div class="form-row"><label>End score col.</label> <input type="number" id="end_score_col" class="vba-input" value="11"></div>
-                        </fieldset>
+                        <input type="number" id="start_row" class="input-modern" value="2" placeholder="Start">
+                        <input type="number" id="end_row" class="input-modern" value="18" placeholder="End">
                     </div>
-
-                    <!-- Frame 3: Monte Carlo -->
-                    <fieldset class="vba-frame">
-                        <legend class="vba-legend">MONTE CARLO analysis</legend>
-                        <div class="red-text" style="margin-bottom:6px; line-height:1.2;">
-                            Analyze effect of scoring uncertainty on Rapfish ordination. For each repeat, add random error to each nominal score. Choose one of the three error distribution methods provided.
-                        </div>
-                        <div class="form-row blue-text" style="margin-bottom:6px;">
-                            <label style="flex:none; margin-right:10px;">Number of random repeats</label> 
-                            <input type="number" id="mc_iterations" class="vba-input" value="50">
-                        </div>
-                        <div style="font-style:italic; color:#FF0000; margin-bottom:6px;">
-                            NB. Enter values in all boxes even if you are not using them.
-                        </div>
-                        <div style="display:flex; gap:5px; align-items:flex-start;">
-                            <input type="radio" checked style="margin-top:2px;">
-                            <div class="blue-text" style="line-height:1.3;">
-                                Normal 0 mean error distribution with 95% confidence interval = <input type="text" class="vba-input" style="width:30px;" value="25" disabled> % of full attribute range
-                            </div>
-                        </div>
-                    </fieldset>
                 </div>
-
-                <div class="vba-right">
-                    <button type="submit" id="btnOK" class="vba-btn btn-run">RUN<br>Rapfish</button>
-                    
-                    <fieldset class="vba-frame" style="width:100%; box-sizing:border-box; margin-top:20px;">
-                        <legend class="vba-legend">LEVERAGING</legend>
-                        <div class="red-text" style="margin-bottom:5px; text-align:center;">Remove one attribute at a time to see effect on Rapfish ordination.</div>
-                        <button type="button" class="vba-btn btn-lev">Run<br>LEVERAGING</button>
-                    </fieldset>
-
-                    <div style="margin-top:auto; text-align:center;">
-                        <div style="font-size:10px; color:#0000FF; margin-bottom:5px;">Rapfish 1.6 Feb. 2004</div>
-                        <button type="button" class="vba-btn" onclick="document.getElementById('uploadForm').reset()">Cancel</button>
+                <div class="form-group">
+                    <label>Names Column Range (Start - End)</label>
+                    <div style="display: flex; gap: 10px;">
+                        <input type="number" id="start_text_col" class="input-modern" value="1">
+                        <input type="number" id="end_text_col" class="input-modern" value="2">
                     </div>
                 </div>
             </div>
+
+            <!-- Section 2: Attributes -->
+            <div class="form-section">
+                <h4 style="margin-bottom: 15px; color: var(--secondary); border-bottom: 2px solid var(--border); padding-bottom: 5px;">
+                    <i class="fas fa-tags" style="margin-right: 8px;"></i>Attributes
+                </h4>
+                <div class="form-group">
+                    <label>Score Column Range (Start - End)</label>
+                    <div style="display: flex; gap: 10px;">
+                        <input type="number" id="start_score_col" class="input-modern" value="3">
+                        <input type="number" id="end_score_col" class="input-modern" value="11">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section 3: Monte Carlo -->
+            <div class="form-section">
+                <h4 style="margin-bottom: 15px; color: var(--secondary); border-bottom: 2px solid var(--border); padding-bottom: 5px;">
+                    <i class="fas fa-dice" style="margin-right: 8px;"></i>Monte Carlo
+                </h4>
+                <div class="form-group">
+                    <label>Random Repeats (Iterations)</label>
+                    <input type="number" id="mc_iterations" class="input-modern" value="50">
+                </div>
+                <div class="form-group">
+                    <label style="display: flex; align-items: center; cursor: pointer;">
+                        <input type="radio" checked style="margin-right: 10px; width: 18px; height: 18px;">
+                        Normal Error Dist. (95% CI)
+                    </label>
+                </div>
+            </div>
+        </div>
+
+        <div style="margin-top: 30px; display: flex; gap: 15px; flex-wrap: wrap;">
+            <button type="submit" id="btnOK" class="btn btn-primary" style="flex: 2; min-width: 200px;">
+                <i class="fas fa-play" style="margin-right: 10px;"></i>Run Rapfish Analysis
+            </button>
+            <button type="button" id="btnPreview" class="btn" style="flex: 1; background: var(--secondary); color: white; min-width: 150px;" onclick="previewData()">
+                <i class="fas fa-eye" style="margin-right: 10px;"></i>Preview Data
+            </button>
+            <button type="button" class="btn" style="flex: 1; background: #e2e8f0; color: #475569; min-width: 100px;" onclick="document.getElementById('uploadForm').reset()">
+                <i class="fas fa-undo" style="margin-right: 10px;"></i>Reset
+            </button>
         </div>
     </form>
 
-    <div id="loading">Memproses Analisis MDS & Monte Carlo... Harap Tunggu.</div>
+    <!-- Data Preview Section -->
+    <div id="previewArea" class="card" style="display: none; margin-bottom: 40px; overflow: hidden; padding: 0;">
+        <div style="padding: 20px; background: var(--surface); border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center;">
+            <h3 style="margin: 0; color: var(--primary);"><i class="fas fa-table" style="margin-right: 10px;"></i>Data Preview (First 10 Rows)</h3>
+            <button class="btn" style="padding: 5px 10px; font-size: 0.8rem;" onclick="document.getElementById('previewArea').style.display='none'">Close</button>
+        </div>
+        <div style="overflow-x: auto; max-height: 400px;">
+            <table id="previewTable" style="width: 100%; border-collapse: collapse; font-size: 0.9rem;">
+                <thead id="previewHead" style="position: sticky; top: 0; background: var(--primary); color: white;"></thead>
+                <tbody id="previewBody"></tbody>
+            </table>
+        </div>
+    </div>
 
-    <!-- AREA HASIL DASHBOARD -->
+    <!-- Loading State -->
+    <div id="loading" class="card" style="text-align: center; display: none; border: 2px solid var(--primary);">
+        <div class="spinner"></div>
+        <h3 style="color: var(--primary);">Processing Analysis...</h3>
+        <p style="color: var(--text-muted);">Executing MDS & Monte Carlo simulations. Please wait.</p>
+    </div>
+
+    <!-- Dashboard Area -->
     <div class="dashboard-area" id="dashboardArea">
-        <div style="display:flex; justify-content:space-between; align-items:center;">
-            <h2 style="color:#000080; margin:0;">Hasil Analisis Rapfish</h2>
-            <button class="vba-btn btn-download" style="width:auto; padding:8px 15px; font-weight:bold; color:green;" onclick="downloadFullExcel()">Download Excel Lengkap</button>
-        </div>
-        <p><strong>Stress Value:</strong> <span id="valStress" style="color:red; font-weight:bold;"></span> | <strong>RSQ Value:</strong> <span id="valRSQ" style="color:blue; font-weight:bold;"></span></p>
-        
-        <div class="tab">
-            <button class="tablinks active" onclick="openTab(event, 'RapAnalysis')">MDS Ordination</button>
-            <button class="tablinks" onclick="openTab(event, 'Leverage')">Leverage Attributes</button>
-            <button class="tablinks" onclick="openTab(event, 'MonteCarlo')">Monte Carlo Analysis</button>
-            <button class="tablinks" onclick="openTab(event, 'KiteDiagram')">Kite Diagram</button>
-        </div>
-
-        <div id="RapAnalysis" class="tabcontent" style="display:block;">
-            <div class="chart-wrapper"><canvas id="chartRap"></canvas></div>
-            <div style="margin-top:20px; max-height: 300px; overflow-y: auto;">
-                <table id="tableScores" style="width:100%; border-collapse:collapse; font-size:11px; background:white;">
-                    <thead>
-                        <tr style="background:#000080; color:white;">
-                            <th style="border:1px solid #ccc; padding:4px;">Fishery</th>
-                            <th style="border:1px solid #ccc; padding:4px;">Sustainability Score (0-100)</th>
-                            <th style="border:1px solid #ccc; padding:4px;">Dimension 2</th>
-                        </tr>
-                    </thead>
-                    <tbody id="bodyScores"></tbody>
-                </table>
+        <div class="card" style="background: linear-gradient(135deg, #ffffff 0%, #f0f9ff 100%);">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 20px;">
+                <div>
+                    <h2 style="color: var(--primary); font-family: 'Outfit', sans-serif; font-weight: 800; margin: 0;">
+                        <i class="fas fa-chart-line" style="margin-right: 12px;"></i>Analysis Results
+                    </h2>
+                    <p style="color: var(--text-muted); margin-top: 5px;">Comprehensive sustainability assessment overview</p>
+                </div>
+                <button class="btn btn-primary" style="background: var(--success); box-shadow: 0 4px 6px rgba(16, 185, 129, 0.2);" onclick="downloadFullExcel()">
+                    <i class="fas fa-file-excel" style="margin-right: 8px;"></i>Export Excel
+                </button>
             </div>
-        </div>
-        <div id="Leverage" class="tabcontent">
-            <h3 style="text-align:center; color:#008080;">Leverage of Attributes (Root Mean Square Change in Score)</h3>
-            <div class="chart-wrapper"><canvas id="chartLeverage"></canvas></div>
-        </div>
-        <div id="MonteCarlo" class="tabcontent">
-            <div style="margin-bottom: 20px; background: #f9f9f9; padding: 10px; border: 1px solid #ccc;">
-                <label><strong>Pilih Fishery untuk Histogram:</strong></label>
-                <select id="selFisheryMC" onchange="updateMCHistogram()" class="vba-input" style="width: 200px; text-align: left;"></select>
+
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-label">Stress Value</div>
+                    <div id="valStress" class="stat-value" style="color: var(--danger);">--</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">RSQ Value</div>
+                    <div id="valRSQ" class="stat-value" style="color: var(--primary);">--</div>
+                </div>
             </div>
             
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
-                <div class="chart-wrapper">
-                    <h3 style="text-align:center;">Monte Carlo Histogram</h3>
+            <div class="tabs">
+                <button class="tab-btn active" onclick="openTab(event, 'RapAnalysis')">MDS Ordination</button>
+                <button class="tab-btn" onclick="openTab(event, 'Leverage')">Leverage Attributes</button>
+                <button class="tab-btn" onclick="openTab(event, 'MonteCarlo')">Monte Carlo</button>
+                <button class="tab-btn" onclick="openTab(event, 'KiteDiagram')">Kite Diagram</button>
+            </div>
+
+            <!-- Tab Contents -->
+            <div id="RapAnalysis" class="tabcontent" style="display:block;">
+                <div class="chart-container" style="position: relative;">
+                    <button class="btn" style="position: absolute; right: 20px; top: 20px; z-index: 10; padding: 8px; border-radius: 8px; background: var(--surface);" title="Download as Image" onclick="downloadChart('chartRap', 'MDS_Ordination')">
+                        <i class="fas fa-download"></i>
+                    </button>
+                    <canvas id="chartRap"></canvas>
+                </div>
+                <div class="card" style="padding: 0; overflow: hidden; border-radius: 16px;">
+                    <table id="tableScores" style="width:100%; border-collapse:collapse; font-size:14px; background:white;">
+                        <thead>
+                            <tr style="background: var(--primary); color:white;">
+                                <th style="padding: 12px 15px; text-align: left;">Fishery Name</th>
+                                <th style="padding: 12px 15px; text-align: center;">Sustainability Score</th>
+                                <th style="padding: 12px 15px; text-align: center;">Dimension 2</th>
+                            </tr>
+                        </thead>
+                        <tbody id="bodyScores"></tbody>
+                    </table>
+                </div>
+            </div>
+        <div id="Leverage" class="tabcontent">
+            <h3 style="text-align:center; color: var(--secondary); margin-bottom: 20px;">Leverage of Attributes (RMS Change in Score)</h3>
+            <div class="chart-container" style="position: relative;">
+                <button class="btn" style="position: absolute; right: 20px; top: 20px; z-index: 10; padding: 8px; border-radius: 8px; background: var(--surface);" title="Download as Image" onclick="downloadChart('chartLeverage', 'Leverage_Analysis')">
+                    <i class="fas fa-download"></i>
+                </button>
+                <canvas id="chartLeverage"></canvas>
+            </div>
+        </div>
+
+        <div id="MonteCarlo" class="tabcontent">
+            <div class="card" style="margin-bottom: 25px; background: rgba(0,0,0,0.02); border: 1px solid var(--border);">
+                <label style="font-weight: 600; margin-right: 15px;">Select Fishery for Detailed Histogram:</label>
+                <select id="selFisheryMC" onchange="updateMCHistogram()" class="input-modern" style="width: auto; min-width: 250px;"></select>
+            </div>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 25px; margin-bottom: 25px;">
+                <div class="chart-container" style="position: relative;">
+                    <button class="btn" style="position: absolute; right: 10px; top: 10px; z-index: 10; padding: 5px 8px; border-radius: 6px; background: var(--surface); font-size: 0.8rem;" title="Download as Image" onclick="downloadChart('chartMCHist', 'MC_Histogram')">
+                        <i class="fas fa-download"></i>
+                    </button>
+                    <h4 style="text-align:center; margin-bottom: 15px;">Monte Carlo Histogram</h4>
                     <canvas id="chartMCHist"></canvas>
                 </div>
-                <div class="chart-wrapper">
-                    <h3 style="text-align:center;">Raw Scatter Plot</h3>
+                <div class="chart-container" style="position: relative;">
+                    <button class="btn" style="position: absolute; right: 10px; top: 10px; z-index: 10; padding: 5px 8px; border-radius: 6px; background: var(--surface); font-size: 0.8rem;" title="Download as Image" onclick="downloadChart('chartMC', 'MC_Scatter')">
+                        <i class="fas fa-download"></i>
+                    </button>
+                    <h4 style="text-align:center; margin-bottom: 15px;">Raw Scatter Plot</h4>
                     <canvas id="chartMC"></canvas>
                 </div>
             </div>
-            <hr>
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
-                <div class="chart-wrapper">
-                    <h3 style="text-align:center;">95% Confidence Interval</h3>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 25px;">
+                <div class="chart-container" style="position: relative;">
+                    <button class="btn" style="position: absolute; right: 10px; top: 10px; z-index: 10; padding: 5px 8px; border-radius: 6px; background: var(--surface); font-size: 0.8rem;" title="Download as Image" onclick="downloadChart('chartMC95', 'MC_95_CI')">
+                        <i class="fas fa-download"></i>
+                    </button>
+                    <h4 style="text-align:center; margin-bottom: 15px;">95% Confidence Interval</h4>
                     <canvas id="chartMC95"></canvas>
                 </div>
-                <div class="chart-wrapper">
-                    <h3 style="text-align:center;">50% Inter-quartile</h3>
+                <div class="chart-container" style="position: relative;">
+                    <button class="btn" style="position: absolute; right: 10px; top: 10px; z-index: 10; padding: 5px 8px; border-radius: 6px; background: var(--surface); font-size: 0.8rem;" title="Download as Image" onclick="downloadChart('chartMC50', 'MC_50_CI')">
+                        <i class="fas fa-download"></i>
+                    </button>
+                    <h4 style="text-align:center; margin-bottom: 15px;">50% Inter-quartile</h4>
                     <canvas id="chartMC50"></canvas>
                 </div>
             </div>
         </div>
 
         <div id="KiteDiagram" class="tabcontent">
-            <h3 style="text-align:center; color:#008080;">Sustainability Kite Diagram (Multi-Dimensional)</h3>
-            <div style="display: flex; gap: 20px;">
-                <div style="width: 300px; background: #f1f1f1; padding: 15px; border: 1px solid #ccc;">
-                    <h4 style="margin-top: 0;">Input Scores:</h4>
-                    <div class="form-row"><label>Ecological</label> <input type="number" id="kite_eco" class="vba-input" value="50" oninput="drawKite()"></div>
-                    <div class="form-row"><label>Economic</label> <input type="number" id="kite_eco_nom" class="vba-input" value="50" oninput="drawKite()"></div>
-                    <div class="form-row"><label>Social</label> <input type="number" id="kite_soc" class="vba-input" value="50" oninput="drawKite()"></div>
-                    <div class="form-row"><label>Technological</label> <input type="number" id="kite_tech" class="vba-input" value="50" oninput="drawKite()"></div>
-                    <div class="form-row"><label>Institutional</label> <input type="number" id="kite_inst" class="vba-input" value="50" oninput="drawKite()"></div>
-                    <p style="font-size: 10px; color: #666; margin-top: 10px;">*Masukkan hasil score (0-100) dari setiap dimensi yang telah dianalisis untuk melihat bentuk layang-layang (kite).</p>
-                    <button class="vba-btn" style="width:100%; margin-top:10px;" onclick="importKiteScore()">Gunakan Skor Saat Ini (Ecology)</button>
+            <h3 style="text-align:center; color: var(--secondary); margin-bottom: 25px;">Sustainability Kite Diagram</h3>
+            <div style="display: grid; grid-template-columns: 320px 1fr; gap: 30px;">
+                <div class="card" style="background: rgba(0,0,0,0.02);">
+                    <h4 style="margin-bottom: 20px; border-bottom: 1px solid var(--border); padding-bottom: 10px;">Input Dimensions:</h4>
+                    <div class="form-group"><label>Ecological</label> <input type="number" id="kite_eco" class="input-modern" value="50" oninput="drawKite()"></div>
+                    <div class="form-group"><label>Economic</label> <input type="number" id="kite_eco_nom" class="input-modern" value="50" oninput="drawKite()"></div>
+                    <div class="form-group"><label>Social</label> <input type="number" id="kite_soc" class="input-modern" value="50" oninput="drawKite()"></div>
+                    <div class="form-group"><label>Technological</label> <input type="number" id="kite_tech" class="input-modern" value="50" oninput="drawKite()"></div>
+                    <div class="form-group"><label>Institutional</label> <input type="number" id="kite_inst" class="input-modern" value="50" oninput="drawKite()"></div>
+                    <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 15px; font-style: italic;">*Input analysis scores (0-100) for each dimension.</p>
+                    <button class="btn btn-primary" style="width:100%; margin-top:15px; font-size: 0.8rem; padding: 10px;" onclick="importKiteScore()">
+                        <i class="fas fa-file-import" style="margin-right: 8px;"></i>Auto-Import Ecological Score
+                    </button>
                 </div>
-                <div class="chart-wrapper" style="flex: 1;">
+                <div class="chart-container" style="position: relative;">
+                    <button class="btn" style="position: absolute; right: 20px; top: 20px; z-index: 10; padding: 8px; border-radius: 8px; background: var(--surface);" title="Download as Image" onclick="downloadChart('chartKite', 'Kite_Diagram')">
+                        <i class="fas fa-download"></i>
+                    </button>
                     <canvas id="chartKite"></canvas>
                 </div>
             </div>
@@ -264,17 +295,142 @@
 </div>
 
 <script>
+    // Theme Toggle Logic
+    const themeBtn = document.getElementById('theme-btn');
+    const body = document.body;
+    const icon = themeBtn.querySelector('i');
+
+    function setTheme(isDark) {
+        if (isDark) {
+            body.classList.add('dark');
+            icon.classList.replace('fa-moon', 'fa-sun');
+            localStorage.setItem('theme', 'dark');
+        } else {
+            body.classList.remove('dark');
+            icon.classList.replace('fa-sun', 'fa-moon');
+            localStorage.setItem('theme', 'light');
+        }
+    }
+
+    themeBtn.addEventListener('click', () => {
+        setTheme(!body.classList.contains('dark'));
+    });
+
+    // Check saved theme
+    if (localStorage.getItem('theme') === 'dark') {
+        setTheme(true);
+    }
+
+    // Load Saved Parameters
+    function loadSavedParams() {
+        const params = JSON.parse(localStorage.getItem('rapfish_params'));
+        if (params) {
+            document.getElementById('start_row').value = params.start_row || 2;
+            document.getElementById('end_row').value = params.end_row || 18;
+            document.getElementById('start_text_col').value = params.start_text_col || 1;
+            document.getElementById('end_text_col').value = params.end_text_col || 2;
+            document.getElementById('start_score_col').value = params.start_score_col || 3;
+            document.getElementById('end_score_col').value = params.end_score_col || 11;
+            document.getElementById('mc_iterations').value = params.mc_iterations || 50;
+        }
+    }
+    loadSavedParams();
+
+    function saveParams() {
+        const params = {
+            start_row: document.getElementById('start_row').value,
+            end_row: document.getElementById('end_row').value,
+            start_text_col: document.getElementById('start_text_col').value,
+            end_text_col: document.getElementById('end_text_col').value,
+            start_score_col: document.getElementById('start_score_col').value,
+            end_score_col: document.getElementById('end_score_col').value,
+            mc_iterations: document.getElementById('mc_iterations').value
+        };
+        localStorage.setItem('rapfish_params', JSON.stringify(params));
+    }
+
+    // Help Modal Logic
+    document.getElementById('help-btn').addEventListener('click', () => {
+        document.getElementById('helpModal').style.display = 'block';
+    });
+
+    // Close modal when clicking outside
+    window.onclick = function(event) {
+        const modal = document.getElementById('helpModal');
+        if (event.target == modal) {
+            modal.style.display = "none";
+        }
+    }
+
+    function downloadChart(canvasId, fileName) {
+        const canvas = document.getElementById(canvasId);
+        const link = document.createElement('a');
+        link.download = `${fileName}.png`;
+        link.href = canvas.toDataURL('image/png');
+        link.click();
+    }
+
+    async function downloadFullExcel() {
+        if (!currentData) return alert("No analysis data available to export!");
+        
+        try {
+            const response = await fetch('/export_excel', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(currentData)
+            });
+            
+            if (response.ok) {
+                const blob = await response.blob();
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'Rapfish_Analysis_Results.xlsx';
+                document.body.appendChild(a);
+                a.click();
+                window.URL.revokeObjectURL(url);
+                document.body.removeChild(a);
+            } else {
+                alert('Export failed. Please try again.');
+            }
+        } catch (error) {
+            console.error(error);
+            alert('Failed to export Excel file.');
+        }
+    }
+
+    function importKiteScore() {
+        if (!currentData || !currentData.rap_analysis || currentData.rap_analysis.length === 0) {
+            return alert("No analysis data available. Please run an analysis first!");
+        }
+        
+        // Get the first fishery's ecological score (assuming it's the first dimension)
+        const firstScore = currentData.rap_analysis[0].x;
+        document.getElementById('kite_eco').value = Math.round(firstScore);
+        drawKite();
+        alert(`Imported Ecological Score: ${Math.round(firstScore)}`);
+    }
+
     let chartRapIns, chartLevIns, chartMCIns, chartMC95Ins, chartMC50Ins, chartMCHistIns, chartKiteIns;
     let currentData = null;
+
+    function updateFileName(input) {
+        const display = document.getElementById('file-name-display');
+        if (input.files && input.files[0]) {
+            display.innerHTML = `<i class="fas fa-file-excel" style="margin-right: 8px;"></i>${input.files[0].name}`;
+        } else {
+            display.innerHTML = '';
+        }
+    }
 
     function openTab(evt, tabName) {
         let i, tabcontent, tablinks;
         tabcontent = document.getElementsByClassName("tabcontent");
         for (i = 0; i < tabcontent.length; i++) tabcontent[i].style.display = "none";
-        tablinks = document.getElementsByClassName("tablinks");
-        for (i = 0; i < tablinks.length; i++) tablinks[i].className = tablinks[i].className.replace(" active", "");
+        tablinks = document.getElementsByClassName("tab-btn");
+        for (i = 0; i < tablinks.length; i++) tablinks[i].classList.remove("active");
         document.getElementById(tabName).style.display = "block";
-        evt.currentTarget.className += " active";
+        evt.currentTarget.classList.add("active");
         
         // Resize charts when tab is shown
         if (tabName === 'Leverage' && chartLevIns) chartLevIns.resize();
@@ -305,21 +461,30 @@
                 datasets: [{
                     label: 'Sustainability Status',
                     data: scores,
-                    backgroundColor: 'rgba(39, 174, 96, 0.4)',
-                    borderColor: 'rgb(39, 174, 96)',
-                    borderWidth: 2,
-                    pointBackgroundColor: 'rgb(39, 174, 96)',
+                    backgroundColor: 'rgba(37, 99, 235, 0.2)',
+                    borderColor: 'rgb(37, 99, 235)',
+                    borderWidth: 3,
+                    pointBackgroundColor: 'rgb(37, 99, 235)',
+                    pointBorderColor: '#fff',
+                    pointHoverBackgroundColor: '#fff',
+                    pointHoverBorderColor: 'rgb(37, 99, 235)',
                     fill: true
                 }]
             },
             options: {
+                plugins: {
+                    legend: { display: false }
+                },
                 scales: {
                     r: {
                         min: 0,
                         max: 100,
-                        ticks: { stepSize: 25 },
-                        grid: { color: '#ccc' },
-                        angleLines: { color: '#aaa' }
+                        ticks: { stepSize: 25, backdropColor: 'transparent' },
+                        grid: { color: 'rgba(0,0,0,0.1)' },
+                        angleLines: { color: 'rgba(0,0,0,0.1)' },
+                        pointLabels: {
+                            font: { size: 12, weight: '600' }
+                        }
                     }
                 }
             }
@@ -375,17 +540,13 @@
     };
     Chart.register(errorBarPlugin);
 
-    document.getElementById('uploadForm').addEventListener('submit', async function(e) {
-        e.preventDefault();
+    async function previewData() {
         const fileInput = document.getElementById('inputFile');
-        if (!fileInput.files.length) return alert("Pilih file excel terlebih dahulu!");
+        if (!fileInput.files.length) return alert("Please select an Excel or CSV file first!");
 
-        const btnOK = document.getElementById('btnOK');
-        const loading = document.getElementById('loading');
-        
-        btnOK.disabled = true;
-        loading.style.display = "block";
-        document.getElementById('dashboardArea').style.display = "none";
+        const btnPreview = document.getElementById('btnPreview');
+        btnPreview.disabled = true;
+        btnPreview.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Loading...';
 
         const formData = new FormData();
         formData.append('file', fileInput.files[0]);
@@ -395,7 +556,82 @@
         formData.append('end_score_col', document.getElementById('end_score_col').value);
         formData.append('start_row', document.getElementById('start_row').value);
         formData.append('end_row', document.getElementById('end_row').value);
-        formData.append('mc_iterations', document.getElementById('mc_iterations').value);
+
+        try {
+            const response = await fetch('/preview', { method: 'POST', body: formData });
+            const result = await response.json();
+
+            btnPreview.disabled = false;
+            btnPreview.innerHTML = '<i class="fas fa-eye" style="margin-right: 10px;"></i>Preview Data';
+
+            if (result.status === 'success') {
+                const previewArea = document.getElementById('previewArea');
+                const head = document.getElementById('previewHead');
+                const body = document.getElementById('previewBody');
+
+                previewArea.style.display = 'block';
+                previewArea.scrollIntoView({ behavior: 'smooth' });
+
+                // Render Header
+                head.innerHTML = `<tr>${result.columns.map(c => `<th style="padding: 12px; text-align: left; border-bottom: 1px solid var(--border);">${c}</th>`).join('')}</tr>`;
+
+                // Render Body
+                body.innerHTML = result.data.map(row => 
+                    `<tr style="border-bottom: 1px solid var(--border); background: var(--card-bg); color: var(--text);">
+                        ${row.map(val => `<td style="padding: 10px 12px;">${val}</td>`).join('')}
+                    </tr>`
+                ).join('');
+            } else {
+                alert('Preview Error: ' + result.error);
+            }
+        } catch (error) {
+            console.error(error);
+            btnPreview.disabled = false;
+            btnPreview.innerHTML = '<i class="fas fa-eye" style="margin-right: 10px;"></i>Preview Data';
+            alert("Failed to connect to preview server.");
+        }
+    }
+
+    document.getElementById('uploadForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        // Validation
+        const fileInput = document.getElementById('inputFile');
+        const startRow = parseInt(document.getElementById('start_row').value);
+        const endRow = parseInt(document.getElementById('end_row').value);
+        const startTextCol = parseInt(document.getElementById('start_text_col').value);
+        const endTextCol = parseInt(document.getElementById('end_text_col').value);
+        const startScoreCol = parseInt(document.getElementById('start_score_col').value);
+        const endScoreCol = parseInt(document.getElementById('end_score_col').value);
+        const mcIterations = parseInt(document.getElementById('mc_iterations').value);
+
+        if (!fileInput.files.length) return alert("Please select an Excel or CSV file first!");
+        if (endRow <= startRow) return alert("End Row must be greater than Start Row.");
+        if (endTextCol < startTextCol) return alert("End Text Column cannot be less than Start Text Column.");
+        if (endScoreCol < startScoreCol) return alert("End Score Column cannot be less than Start Score Column.");
+        if (mcIterations < 1 || mcIterations > 1000) return alert("Monte Carlo iterations should be between 1 and 1000.");
+
+        saveParams();
+
+        const btnOK = document.getElementById('btnOK');
+        const loading = document.getElementById('loading');
+        
+        btnOK.disabled = true;
+        loading.style.display = "block";
+        document.getElementById('dashboardArea').style.display = "none";
+        
+        // Scroll to loading
+        loading.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+        const formData = new FormData();
+        formData.append('file', fileInput.files[0]);
+        formData.append('start_text_col', startTextCol);
+        formData.append('end_text_col', endTextCol);
+        formData.append('start_score_col', startScoreCol);
+        formData.append('end_score_col', endScoreCol);
+        formData.append('start_row', startRow);
+        formData.append('end_row', endRow);
+        formData.append('mc_iterations', mcIterations);
 
         try {
             const response = await fetch('/analyze', { method: 'POST', body: formData });
@@ -453,11 +689,30 @@
         if (chartRapIns) chartRapIns.destroy();
         chartRapIns = new Chart(document.getElementById('chartRap'), {
             type: 'scatter',
-            data: { datasets: [{ label: 'Sustainability Score', data: data, backgroundColor: '#000080', pointRadius: 6, pointStyle: 'rectRot' }] },
+            data: { 
+                datasets: [{ 
+                    label: 'Sustainability Score', 
+                    data: data, 
+                    backgroundColor: 'rgba(37, 99, 235, 0.7)', 
+                    borderColor: 'rgb(37, 99, 235)',
+                    pointRadius: 8, 
+                    pointHoverRadius: 10,
+                    pointStyle: 'circle' 
+                }] 
+            },
             options: { 
+                responsive: true,
+                maintainAspectRatio: false,
                 scales: { 
-                    x: { min: 0, max: 100, title: { display: true, text: 'Sustainability Score' } },
-                    y: { title: { display: true, text: 'Dimension 2' } }
+                    x: { 
+                        min: 0, max: 100, 
+                        title: { display: true, text: 'Sustainability Score (0-100)', font: { weight: 'bold' } },
+                        grid: { color: 'rgba(0,0,0,0.05)' }
+                    },
+                    y: { 
+                        title: { display: true, text: 'Dimension 2', font: { weight: 'bold' } },
+                        grid: { color: 'rgba(0,0,0,0.05)' }
+                    }
                 } 
             }
         });
@@ -470,17 +725,29 @@
             data: { 
                 labels: data.map(d => d.atribut), 
                 datasets: [{ 
-                    label: 'Root Mean Square Change in Score', 
+                    label: 'RMS Change', 
                     data: data.map(d => d.leverage), 
-                    backgroundColor: '#ff0000',
-                    borderColor: '#000',
-                    borderWidth: 1
+                    backgroundColor: 'rgba(239, 68, 68, 0.7)',
+                    borderColor: 'rgb(239, 68, 68)',
+                    borderWidth: 2,
+                    borderRadius: 8
                 }] 
             },
             options: { 
                 indexAxis: 'y',
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false }
+                },
                 scales: {
-                    x: { title: { display: true, text: 'RMS Change' } }
+                    x: { 
+                        title: { display: true, text: 'Root Mean Square Change', font: { weight: 'bold' } },
+                        grid: { display: false }
+                    },
+                    y: {
+                        grid: { color: 'rgba(0,0,0,0.05)' }
+                    }
                 }
             }
         });
@@ -490,11 +757,13 @@
         if (chartMCIns) chartMCIns.destroy();
         chartMCIns = new Chart(document.getElementById('chartMC'), {
             type: 'scatter',
-            data: { datasets: [{ label: 'All Iterations', data: mcData, backgroundColor: 'rgba(128,128,128,0.3)', pointRadius: 2 }] },
+            data: { datasets: [{ label: 'All Iterations', data: mcData, backgroundColor: 'rgba(148, 163, 184, 0.25)', pointRadius: 2 }] },
             options: { 
+                responsive: true,
+                maintainAspectRatio: false,
                 scales: { 
-                    x: { min: 0, max: 100, title: { display: true, text: 'Sustainability Score' } },
-                    y: { title: { display: true, text: 'Dimension 2' } }
+                    x: { min: 0, max: 100, title: { display: true, text: 'Sustainability Score', font: { weight: 'bold' } } },
+                    y: { title: { display: true, text: 'Dimension 2', font: { weight: 'bold' } } }
                 } 
             }
         });
@@ -506,11 +775,13 @@
         const pointData = mcSummary.map(d => ({x: d.med_x, y: d.med_y}));
         const chart = new Chart(document.getElementById(canvasId), {
             type: 'scatter',
-            data: { datasets: [{ label: `Median (${type}% CI)`, data: pointData, backgroundColor: color, pointRadius: 5, mc_summary: mcSummary }] },
+            data: { datasets: [{ label: `Median (${type}% CI)`, data: pointData, backgroundColor: color, pointRadius: 6, pointHoverRadius: 8, mc_summary: mcSummary }] },
             options: { 
+                responsive: true,
+                maintainAspectRatio: false,
                 scales: { 
-                    x: { min: 0, max: 100, title: { display: true, text: 'Sustainability Score' } },
-                    y: { title: { display: true, text: 'Dimension 2' } }
+                    x: { min: 0, max: 100, title: { display: true, text: 'Sustainability Score', font: { weight: 'bold' } } },
+                    y: { title: { display: true, text: 'Dimension 2', font: { weight: 'bold' } } }
                 }, 
                 plugins: { errorBars: { type: type } } 
             },
@@ -538,17 +809,23 @@
             data: {
                 labels: labels,
                 datasets: [{
-                    label: `Frequency (${lbl})`,
+                    label: `Frequency`,
                     data: bins,
-                    backgroundColor: '#1084d0',
-                    borderColor: '#000',
-                    borderWidth: 1
+                    backgroundColor: 'rgba(37, 99, 235, 0.7)',
+                    borderColor: 'rgb(37, 99, 235)',
+                    borderWidth: 2,
+                    borderRadius: 4
                 }]
             },
             options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false }
+                },
                 scales: {
-                    x: { title: { display: true, text: 'Sustainability Score' } },
-                    y: { title: { display: true, text: 'Frequency' } }
+                    x: { title: { display: true, text: 'Sustainability Score', font: { weight: 'bold' } } },
+                    y: { title: { display: true, text: 'Frequency', font: { weight: 'bold' } } }
                 }
             }
         });
