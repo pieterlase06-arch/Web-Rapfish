@@ -26,7 +26,7 @@ python -m pip install -r requirements.txt --quiet
 
 echo [3/4] Building Windows executable...
 echo This may take 3-5 minutes. Please wait...
-pyinstaller build_windows.spec --clean --noconfirm
+python -m PyInstaller build_windows.spec --clean --noconfirm
 
 if errorlevel 1 (
     echo.

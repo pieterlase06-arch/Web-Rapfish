@@ -373,6 +373,11 @@
     async function downloadFullExcel() {
         if (!currentData) return alert("No analysis data available to export!");
         
+        const btn = document.querySelector('button[onclick="downloadFullExcel()"]');
+        const originalText = btn.innerHTML;
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Exporting...';
+        
         try {
             const response = await fetch('/export_excel', {
                 method: 'POST',
@@ -396,6 +401,9 @@
         } catch (error) {
             console.error(error);
             alert('Failed to export Excel file.');
+        } finally {
+            btn.disabled = false;
+            btn.innerHTML = originalText;
         }
     }
 
@@ -404,11 +412,11 @@
             return alert("No analysis data available. Please run an analysis first!");
         }
         
-        // Get the first fishery's ecological score (assuming it's the first dimension)
-        const firstScore = currentData.rap_analysis[0].x;
-        document.getElementById('kite_eco').value = Math.round(firstScore);
+        // Calculate average sustainability score to populate Kite Diagram
+        const avg = currentData.rap_analysis.reduce((sum, pt) => sum + pt.x, 0) / currentData.rap_analysis.length;
+        document.getElementById('kite_eco').value = Math.round(avg);
         drawKite();
-        alert(`Imported Ecological Score: ${Math.round(firstScore)}`);
+        alert(`Imported Average Sustainability Score: ${Math.round(avg)}`);
     }
 
     let chartRapIns, chartLevIns, chartMCIns, chartMC95Ins, chartMC50Ins, chartMCHistIns, chartKiteIns;
@@ -491,12 +499,6 @@
         });
     }
 
-    function importKiteScore() {
-        if (!currentData || !currentData.rap_analysis.length) return alert('Lakukan analisis MDS terlebih dahulu.');
-        const avg = currentData.rap_analysis.reduce((sum, pt) => sum + pt.x, 0) / currentData.rap_analysis.length;
-        document.getElementById('kite_eco').value = Math.round(avg);
-        drawKite();
-    }
 
     // Plugin Error Bar
     const errorBarPlugin = {
@@ -831,19 +833,6 @@
         });
     }
 
-    async function downloadFullExcel() {
-        if(!currentData) return;
-        const btn = document.querySelector('button.btn-download');
-        btn.innerText = "Mengekspor...";
-        const response = await fetch('/export_excel', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(currentData) });
-        btn.innerText = "Download Excel Lengkap";
-        if (!response.ok) return alert('Gagal mengunduh Excel.');
-        const blob = await response.blob();
-        const a = document.createElement('a');
-        a.href = window.URL.createObjectURL(blob);
-        a.download = "Hasil_Rapfish_Analisis.xlsx";
-        document.body.appendChild(a); a.click(); a.remove();
-    }
 </script>
 </body>
 </html>
